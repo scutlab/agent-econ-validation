@@ -60,3 +60,20 @@ tokens 计，约 0.2 美元。放大 10 倍也只有几美元。
 
 试点通过后：第二阶段上 Concordia 做多 agent 互动（拍卖、匹配、
 重复博弈）；再之后接 A 股处置效应模拟。
+
+<!-- NIGHTLY_SYNC:BEGIN -->
+## 同步状态（每晚 23 点自动更新）
+
+- 最后同步：2026-11-05 15:28（北京时间）
+- 云盘：文档＋数据＋代码全量备份（Google Drive 文件夹 agent-econ-validation）
+- GitHub：仅文档＋代码（scutlab/agent-econ-validation），数据与实验结果不进仓库
+
+| 结果目录 | 文件数 | 总行数 | 未满 200 行的文件 |
+|---|---|---|---|
+| results | 31 | 6200 | — |
+| results_gemini | 5 | 1000 | — |
+| results_gemini_backup_sequential | 2 | 400 | — |
+| results_gemini_carry | 7 | 1400 | — |
+| results_gemini_h3 | 18 | 3600 | — |
+| results_gemini_h3_backup_sequential | 1 | 52 | status_quo_classic_sq70.jsonl(52) |
+<!-- NIGHTLY_SYNC:END -->
