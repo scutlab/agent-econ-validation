@@ -3,6 +3,7 @@
 - 设计：同一 persona（种子 20261105）、同提示词 classic、温度 1.0、
   每组 n=200；DeepSeek `deepseek-chat` 与 Gemini `gemini-3.8-flash`
   配对复核。解析失败两边均为 0。
+- 模型：DeepSeek 侧为 API 模型 `deepseek-chat`；Gemini 侧为 API 模型 `gemini-3.8-flash`（每次调用的模型 ID 均记在结果文件每行的 `model` 字段中，可逐行核对）。
 - 口径：Horton 对比只做独裁者 + 雪铲；最后通牒、禀赋效应只对
   经典人类文献（见 `horton_baselines.md` 与 `provenance.md`）。
 - 统计说明：两模型差异的显著性用双比例 z 检验近似；

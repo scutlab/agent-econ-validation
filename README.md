@@ -5,7 +5,7 @@
 后端模型不同、判定标准更硬。
 
 - 部署：见 [DEPLOYMENT.md](DEPLOYMENT.md)（环境、凭据、验证三步）。
-- 使用：见 [USAGE.md](USAGE.md)（9 个实验的命令、分析、新增实验四步）。
+- 使用：见 [USAGE.md](USAGE.md)（11 个实验 + 禀赋 2 个变体的命令、分析、新增实验四步）。
 - 数据：见 [DATA.md](DATA.md)（人类基线来源、Fama 基线、处理办法）。
 - 设计总报告：[experiment_design_report.md](experiment_design_report.md)
   （14 个实验：现有 9 个 + 人民币 3 个 + AI 泡沫 2 个 + 多 agent 远期）。
@@ -64,16 +64,26 @@ tokens 计，约 0.2 美元。放大 10 倍也只有几美元。
 <!-- NIGHTLY_SYNC:BEGIN -->
 ## 同步状态（每晚 23 点自动更新）
 
-- 最后同步：2026-11-05 15:28（北京时间）
+- 最后同步：2026-11-05 14:59（北京时间）
 - 云盘：文档＋数据＋代码全量备份（Google Drive 文件夹 agent-econ-validation）
 - GitHub：仅文档＋代码（scutlab/agent-econ-validation），数据与实验结果不进仓库
 
 | 结果目录 | 文件数 | 总行数 | 未满 200 行的文件 |
 |---|---|---|---|
 | results | 31 | 6200 | — |
+| results_fixing | 8 | 1600 | — |
 | results_gemini | 5 | 1000 | — |
 | results_gemini_backup_sequential | 2 | 400 | — |
-| results_gemini_carry | 7 | 1400 | — |
+| results_gemini_carry | 8 | 1600 | — |
+| results_gemini_fixing | 8 | 1600 | — |
 | results_gemini_h3 | 18 | 3600 | — |
 | results_gemini_h3_backup_sequential | 1 | 52 | status_quo_classic_sq70.jsonl(52) |
+| results_gemini_noanchor | 3 | 600 | — |
+| results_gemini_oprea_math | 16 | 3200 | — |
+| results_gemini_settle | 8 | 1600 | — |
+| results_gemini_volunteering | 8 | 1600 | — |
+| results_noanchor | 3 | 600 | — |
+| results_oprea_math | 16 | 3200 | — |
+| results_settle | 8 | 1600 | — |
+| results_volunteering | 8 | 1600 | — |
 <!-- NIGHTLY_SYNC:END -->

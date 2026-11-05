@@ -89,8 +89,9 @@ def main():
                     choices=list(EXPERIMENTS))
     ap.add_argument("--n", type=int, default=8)
     ap.add_argument("--variant", default="classic",
-                    choices=["classic", "novel", "adversarial"])
-    ap.add_argument("--arm", default="owner", choices=["owner", "buyer"])
+                    choices=["classic", "novel", "adversarial", "noanchor"])
+    ap.add_argument("--arm", default="owner",
+                    choices=["owner", "buyer", "chooser"])
     ap.add_argument("--offer", type=int, default=20)
     ap.add_argument("--sq", default="60", choices=["70", "60", "50", "30"])
     ap.add_argument("--cell", default="gain_high",
@@ -104,6 +105,11 @@ def main():
     ap.add_argument("--params", default="hauert",
                     choices=["hauert", "semmann"])
     ap.add_argument("--spread", default="inv", choices=["inv", "pos"])
+    ap.add_argument("--app", default="app", choices=["app", "dep"])
+    ap.add_argument("--dxy", default="down", choices=["down", "up"])
+    ap.add_argument("--close", default="up", choices=["up", "down"])
+    ap.add_argument("--basket", default="up", choices=["up", "down"])
+    ap.add_argument("--cfix", default="none", choices=["none", "active"])
     ap.add_argument("--vol", default="low", choices=["low", "high"])
     ap.add_argument("--control", default="none",
                     choices=["none", "controlled"])
@@ -113,6 +119,9 @@ def main():
                     help="default: provider default model")
     ap.add_argument("--temperature", type=float, default=1.0)
     ap.add_argument("--seed", type=int, default=20261105)
+    ap.add_argument("--math", default="none", choices=["none", "strong", "weak"],
+                    help="math-ability persona clause appended to the "
+                         "persona text (Oprea mirror test)")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--workers", type=int, default=1,
                     help="concurrent API calls (default 1 = sequential). "
@@ -141,6 +150,12 @@ def main():
         suffix += f"_{args.params}_{args.scenario}"
     if args.experiment == "carry":
         suffix += f"_{args.spread}_{args.vol}_{args.control}"
+    if args.experiment == "settle":
+        suffix += f"_{args.app}_{args.spread}_{args.dxy}"
+    if args.experiment == "fixing":
+        suffix += f"_{args.close}_{args.basket}_{args.cfix}"
+    if args.math != "none":
+        suffix += f"_math{args.math}"
     out_path = args.out or os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         args.results_dir, f"{args.experiment}{suffix}.jsonl")
@@ -167,9 +182,21 @@ def main():
             kw["spread"] = args.spread
             kw["vol"] = args.vol
             kw["control"] = args.control
-        prompt = spec["prompt"](persona_text(p), variant=args.variant, **kw)
+        if args.experiment == "settle":
+            kw["spread"] = args.spread
+            kw["app"] = args.app
+            kw["dxy"] = args.dxy
+            kw["firm_size"] = p["firm_size"]
+        if args.experiment == "fixing":
+            kw["close"] = args.close
+            kw["basket"] = args.basket
+            kw["control"] = args.cfix
+        prompt = spec["prompt"](persona_text(p, math=args.math),
+                               variant=args.variant, **kw)
         if args.dry_run:
-            response = spec["sample"]
+            key = ("sample_" + args.arm if args.experiment == "endowment"
+                   else "sample")
+            response = spec.get(key, spec["sample"])
         else:
             response = call_with_retry(prompt, args.model, args.temperature,
                                        args.provider)
@@ -186,9 +213,16 @@ def main():
             "expask": int(args.expask) if args.experiment == "hiring" else None,
             "scenario": args.scenario if args.experiment == "volunteering" else None,
             "params": args.params if args.experiment == "volunteering" else None,
-            "spread": args.spread if args.experiment == "carry" else None,
+            "spread": args.spread if args.experiment in ("carry", "settle")
+                      else None,
             "vol": args.vol if args.experiment == "carry" else None,
             "control": args.control if args.experiment == "carry" else None,
+            "app": args.app if args.experiment == "settle" else None,
+            "dxy": args.dxy if args.experiment == "settle" else None,
+            "close": args.close if args.experiment == "fixing" else None,
+            "basket": args.basket if args.experiment == "fixing" else None,
+            "cfix": args.cfix if args.experiment == "fixing" else None,
+            "math": args.math,
             "provider": args.provider,
             "model": args.model,
             "temperature": args.temperature,

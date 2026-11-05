@@ -72,7 +72,27 @@ def ultimatum_parse(text):
 
 # ---------------------------------------------------------------- endowment
 def endowment_prompt(persona, variant="classic", arm="owner"):
-    if arm == "owner":
+    if arm == "chooser":
+        # KKT-style chooser: binary mug-vs-cash choices at five cash
+        # amounts. No price anchor anywhere (noanchor by construction);
+        # the grid spans the noanchor WTA/WTP interquartile range.
+        story = ("你没有保温杯。现在有人给你一个选择：一个全新的品牌保温杯，"
+                 "或者一笔现金。请在以下每种情况下选择你要保温杯还是现金："
+                 "现金 50 元、100 元、150 元、200 元、300 元。")
+        return (persona + "\n" + story + "\n" +
+                _ask_json('{"choices": {"50": <"mug" 或 "cash">, "100": <"mug" 或 "cash">, '
+                          '"150": <"mug" 或 "cash">, "200": <"mug" 或 "cash">, '
+                          '"300": <"mug" 或 "cash">}, "reason": "<一句话理由>"}'))
+    if variant == "noanchor":
+        # No price anchor: tests whether the classic 1.24 ratio was
+        # compressed by the "market price ~80" anchor.
+        if arm == "owner":
+            story = ("你拥有一个全新的品牌保温杯，"
+                     "现在有人想从你手里买走它。你最低愿意以多少钱卖出？")
+        else:
+            story = ("你没有保温杯，现在商店里有一个全新的品牌保温杯，"
+                     "你最高愿意出多少钱购买？")
+    elif arm == "owner":
         story = ("你拥有一个全新的品牌保温杯（市场价约 80 元），"
                  "现在有人想从你手里买走它。你最低愿意以多少钱卖出？")
     else:
@@ -82,10 +102,24 @@ def endowment_prompt(persona, variant="classic", arm="owner"):
             _ask_json('{"price": <数字，单位元>, "reason": "<一句话理由>"}'))
 
 
+CHOOSER_AMOUNTS = [50, 100, 150, 200, 300]
+
+
 def endowment_parse(text):
     d = _json_block(text)
-    if d and isinstance(d.get("price"), (int, float)) and d["price"] >= 0:
+    if not d:
+        return None
+    if isinstance(d.get("price"), (int, float)) and d["price"] >= 0:
         return {"price": float(d["price"])}
+    ch = d.get("choices")
+    if isinstance(ch, dict):
+        vals = {}
+        for a in CHOOSER_AMOUNTS:
+            v = ch.get(str(a), ch.get(a))
+            if v not in ("mug", "cash"):
+                return None
+            vals[a] = v
+        return {"choices": vals}
     return None
 
 
@@ -343,6 +377,124 @@ def carry_parse(text):
     return None
 
 
+# ------------------------------------------------------------------- settle
+# Experiment 9: exporter settlement decision (RMB puzzle).
+# Portfolio balance + settlement flows (Gabaix & Maggiori 2015).
+# 8 arms: expected RMB move (app/dep) x spread (inv/pos, reused from
+# carry) x USD index direction (down/up). Firm size cycles
+# large/medium/small in the persona (see personas.py).
+APPS = {
+    "app": "市场普遍预期未来 3 个月人民币兑美元升值 3%（人民币走强）。",
+    "dep": "市场普遍预期未来 3 个月人民币兑美元贬值 2%（人民币走弱）。",
+}
+DXYS = {
+    "down": "美元指数过去一个月下跌 3%，美元走弱。",
+    "up": "美元指数过去一个月上涨 3%，美元走强。",
+}
+SIZE_DESC = {
+    "large": "大型",
+    "medium": "中型",
+    "small": "小型",
+}
+
+
+def settle_prompt(persona, variant="classic", spread="inv",
+                  app="app", dxy="down", firm_size="medium"):
+    story = (f"你是一家{SIZE_DESC[firm_size]}出口企业的财务负责人。公司刚收到"
+             "一笔 100 万美元的出口货款，存在美元账户里。现在需要决定："
+             "把其中多少比例结汇成人民币。\n"
+             + SPREADS[spread] + "\n" + APPS[app] + "\n" + DXYS[dxy]
+             + "\n请回答：打算把这笔美元货款的多少比例结汇成人民币"
+               "（0–100%），以及结汇节奏：现在全部结汇、继续持汇、"
+               "还是分批结汇。")
+    return (persona + "\n" + story + "\n" +
+            _ask_json('{"settle_pct": <0-100 的数字>, '
+                      '"timing": <"now"=现在全部结汇 / "hold"=继续持汇 / '
+                      '"tranche"=分批结汇>, "reason": "<一句话理由>"}'))
+
+
+def settle_parse(text):
+    d = _json_block(text)
+    if not d:
+        return None
+    pct = d.get("settle_pct")
+    if not isinstance(pct, (int, float)) or not 0 <= pct <= 100:
+        return None
+    t = d.get("timing")
+    if isinstance(t, str):
+        t = t.strip().lower()
+        mapping = {"now": "now", "hold": "hold", "tranche": "tranche",
+                   "现在结汇": "now", "现在全部结汇": "now",
+                   "继续持汇": "hold", "分批结汇": "tranche"}
+        if t not in mapping:
+            return None
+        t = mapping[t]
+    else:
+        return None
+    return {"settle_pct": float(pct), "timing": t}
+
+
+# ------------------------------------------------------------------ fixing
+# Experiment 11: central bank fixing agent (RMB puzzle).
+# Two-pillar model + countercyclical factor (Jermann, Wei & Yue 2019:
+# the two pillars explain ~80% of fixing variation, weights roughly
+# equal). 8 arms: previous close move (+/-40bp) x basket-implied move
+# (+/-40bp) x countercyclical factor prompt (none/active). The agent
+# reports the fixing change in bp vs yesterday's fixing (positive =
+# fixing up, RMB weaker) plus the direction. Weights are identified
+# from the balanced factorial: w_close = (mean bp | close=+40 minus
+# mean bp | close=-40) / 80, likewise w_basket.
+CLOSES = {
+    "up": "昨日收盘价 6.69，较昨日中间价上升 40 个基点（人民币走弱）。",
+    "down": "昨日收盘价 6.61，较昨日中间价下降 40 个基点（人民币走强）。",
+}
+BASKETS = {
+    "up": "按一篮子货币变动测算，今日中间价应较昨日上调 40 个基点。",
+    "down": "按一篮子货币变动测算，今日中间价应较昨日下调 40 个基点。",
+}
+CFIX = {
+    "none": "",
+    "active": "提示：逆周期因子已启动，报价行可根据市场情况对中间价"
+              "进行逆周期调节。",
+}
+
+
+def fixing_prompt(persona, variant="classic", close="up",
+                  basket="up", control="none"):
+    story = ("你是一家人民币中间价报价行的交易员，今天需要报出美元兑"
+             "人民币中间价。昨日中间价 6.65。上月货物贸易顺差约 900 亿美元，"
+             "企业结汇意愿稳定（外汇收入结汇率约 65%）。\n"
+             + CLOSES[close] + "\n" + BASKETS[basket] + "\n"
+             + CFIX[control]
+             + "\n请回答：今日中间价较昨日中间价调整多少个基点"
+               "（正数=上调中间价，人民币贬值方向；负数=下调中间价，"
+               "人民币升值方向；0=不变），以及调整方向。")
+    return (persona + "\n" + story + "\n" +
+            _ask_json('{"fixing_bp": <数字，基点>, '
+                      '"direction": <"up"=上调 / "down"=下调 / '
+                      '"unchanged"=不变>, "reason": "<一句话理由>"}'))
+
+
+def fixing_parse(text):
+    d = _json_block(text)
+    if not d:
+        return None
+    bp = d.get("fixing_bp")
+    if not isinstance(bp, (int, float)) or not -500 <= bp <= 500:
+        return None
+    dr = d.get("direction")
+    if isinstance(dr, str):
+        dr = dr.strip().lower()
+        mapping = {"up": "up", "down": "down", "unchanged": "unchanged",
+                   "上调": "up", "下调": "down", "不变": "unchanged"}
+        if dr not in mapping:
+            return None
+        dr = mapping[dr]
+    else:
+        return None
+    return {"fixing_bp": float(bp), "direction": dr}
+
+
 EXPERIMENTS = {
     "dictator": {
         "name": "独裁者博弈",
@@ -365,6 +517,7 @@ EXPERIMENTS = {
         "prompt": endowment_prompt,
         "parse": endowment_parse,
         "sample": '{"price": 100, "reason": "自己的东西舍不得便宜卖。"}',
+        "sample_chooser": '{"choices": {"50": "mug", "100": "mug", "150": "cash", "200": "cash", "300": "cash"}, "reason": "150 元现金比保温杯值钱。"}',
         "baseline": "人类卖价（WTA）显著高于买价（WTP）；"
                     "本试点看 WTA/WTP 比值是否显著大于 1。",
     },
@@ -432,5 +585,26 @@ EXPERIMENTS = {
                     "n=86）；2024+ 窗口利差与 12 个月汇率变动 corr=−0.596。"
                     "预测众数：正利差→买人民币，倒挂→买美元；"
                     "高波动与资本管制应抑制套利（更多不动）。",
+    },
+    "settle": {
+        "name": "出口商结汇决策（人民币）",
+        "prompt": settle_prompt,
+        "parse": settle_parse,
+        "sample": '{"settle_pct": 60, "timing": "tranche", "reason": "预期升值，先结一部分锁定收益。"}',
+        "baseline": "外汇局结汇率方向：2024 年顺差 9,920 亿美元时企业"
+                    "囤汇、人民币贬值；2026 年一季度净结汇近 1,400 亿美元、"
+                    "人民币升值。本试点看结汇比例是否随预期升值上升、"
+                    "随利差倒挂加深下降（定量基线为媒体转述，须复核）。",
+    },
+    "fixing": {
+        "name": "央行中间价 agent（人民币）",
+        "prompt": fixing_prompt,
+        "parse": fixing_parse,
+        "sample": '{"fixing_bp": 20, "direction": "up", "reason": "收盘与篮子都指向贬值，中间价跟随上调一半。"}',
+        "baseline": "Jermann, Wei & Yue（2019）：两支柱可解释中间价约"
+                    "80% 的变动，两支柱权重大致相等（各约 50%）；"
+                    "逆周期因子方向应与市场单边预期相反（Sun 2025 "
+                    "用滚动两支柱残差代理测度）。对照为 CFETS 中间价"
+                    "实际值。",
     },
 }

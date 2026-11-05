@@ -21,7 +21,9 @@ python3 analyze.py --in results/ --all
 
 ## 2. 实验一览与命令
 
-9 个实验，全部参数见 `run.py --help`。每组默认 n=200。
+9 个实验，全部参数见 `run.py --help`。每组默认 n=200。另有禀赋效应的
+两个变体（无锚版 `--variant noanchor`、KKT chooser 臂
+`--arm chooser`）与实验 9、实验 11，共 11 个实验 + 2 个变体。
 
 | # | 实验 | 命令要点 | 臂/组 | 测什么 |
 |---|---|---|---|---|
@@ -34,6 +36,8 @@ python3 analyze.py --in results/ --all
 | 7 | 最低工资雇佣替代 | `--experiment hiring --minwage none\|30 --expask 26\|30\|34` | 6 组 | 雇有经验者比例、雇佣工资 |
 | 8 | 自愿公共品 | `--experiment volunteering --params hauert\|semmann --scenario c_dom\|d_dom\|l_dom\|noinfo` | 8 组 | 合作/背叛/退出选择 |
 | 9 | 利差交易者 | `--experiment carry --spread inv\|pos --vol low\|high --control none\|controlled` | 8 组 | 买人民币/买美元/不动 |
+| 10 | 出口商结汇 | `--experiment settle --app app\|dep --spread inv\|pos --dxy down\|up` | 8 组 | 结汇比例（0–100%）+ 结汇节奏 |
+| 11 | 央行中间价 agent | `--experiment fixing --close up\|down --basket up\|down --cfix none\|active` | 8 组 | 中间价调整（基点）+ 方向 |
 
 示例（Horton 剩下 3 个实验，DeepSeek 串行版）：
 
@@ -115,7 +119,7 @@ Oprea 给每格的确定性等价偏离；雇佣替代给雇佣比例与工资�
 |---|---|
 | experiment / variant | 实验名与版本 |
 | persona | 该条的 persona（年龄/性别/收入/风险态度/干预倾向） |
-| offer / arm / sq / cell / condition / minwage / expask / scenario / params / spread / vol / control | 各实验的臂参数（不适用为 null） |
+| offer / arm / sq / cell / condition / minwage / expask / scenario / params / spread / vol / control / app / dxy / close / basket / cfix | 各实验的臂参数（不适用为 null） |
 | provider / model / temperature | 后端、模型、温度 |
 | parsed | 解析出的结构化答案（失败为 null） |
 | response | 模型原始回复文本 |
