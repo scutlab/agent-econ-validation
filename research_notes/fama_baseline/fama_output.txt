@@ -1,0 +1,16 @@
+sample months: (2019, 8) to (2026, 10) (n=87)
+latest month (2026, 10): LPR 3.00%, US1Y 4.36%, diff -136bp, USD/CNY 6.6538
+
+h=12m  n=75  (2019, 8)..(2025, 10)
+  alpha=-0.0051 (se 0.0150)
+  beta =+0.015 (se 0.746)  t(beta=0)=+0.02  t(beta=1)=-1.32
+  R2=0.000  corr=+0.006
+  mean diff=+0.88%  mean dlnS=-0.50%
+
+h=1m  n=86  (2019, 8)..(2026, 9)
+  alpha=-0.0006 (se 0.0016)
+  beta =-0.468 (se 0.726)  t(beta=0)=-0.65  t(beta=1)=-2.02
+  R2=0.004  corr=-0.066
+  mean diff=+0.06%  mean dlnS=-0.08%
+
+2024+ window (12m horizon): n=22 mean diff=-1.14% mean dlnS=-2.82% corr=-0.596
