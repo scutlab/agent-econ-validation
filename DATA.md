@@ -36,9 +36,11 @@ Horton §2.5 的 +1.314/+1.984 美元/小时是 **AI 模拟数**，
 
 ## 2. Fama 回归基线（实验 10 的定量对照）
 
-代码与数据：`research_notes/fama_baseline/`（`fama.py`、
-`fama_baseline.md`、`fama_output.txt`、`lpr_history.csv`、
-`dexchus.csv`、`dgs1.csv`、`dgs1mo.csv`、`dgs10.csv`）。
+代码与文档在 GitHub：`fama.py`、`fama_baseline.md`。
+原始数据（`fama_output.txt`、`lpr_history.csv`、`dexchus.csv`、
+`dgs1.csv`、`dgs1mo.csv`、`dgs10.csv`）只存 Google Drive
+（agent-econ-validation 文件夹），GitHub 不存数据；FRED 序列
+均可按 §2.1 的命令重新获取，LPR 全表见云盘备份。
 结论：β(12m)=+0.015（SE 0.746，R²=0.000，n=75），
 β(1m)=−0.468（SE 0.726，t(β=1)=−2.02，R²=0.004，n=86）；
 2024+ 窗口 corr=−0.596。
@@ -51,7 +53,7 @@ Horton §2.5 的 +1.314/+1.984 美元/小时是 **AI 模拟数**，
 | DGS1（美 1 年期） | FRED | 同上，`id=DGS1` | ✅ 1962–2026-11-03 |
 | DGS1MO（美 1 个月，备用） | FRED | 同上，`id=DGS1MO` | ✅ 2001–2026-11-03 |
 | DGS10（美 10 年期） | FRED | 同上，`id=DGS10` | ✅ 2026-11-03 为 4.95% |
-| 1 年期 LPR 全表 | 广州农商行 LPR 表（2025-05-20 发布）+ 央行公告交叉核实 | 搜索 + 原文直读，见 `lpr_history.csv` | ✅ 13 次调整（2019-08-20 4.25% → 2025-05-20 3.00%） |
+| 1 年期 LPR 全表 | 广州农商行 LPR 表（2025-05-20 发布）+ 央行公告交叉核实 | 搜索 + 原文直读，见云盘备份 `lpr_history.csv` | ✅ 13 次调整（2019-08-20 4.25% → 2025-05-20 3.00%） |
 | 中国 10 年期国债收益率 | — | 见 2.3 | ❌ 不可得 |
 
 ### 2.2 处理办法
