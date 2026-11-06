@@ -180,7 +180,12 @@
   （`oprea_mirror_analysis.md`）：Gemini mirror 800/800 恰为 EV、
   DeepSeek 偏离是奖金锚定伪影；数学能力 persona 检验已跑完
   （`oprea_math_persona.md`）：预测对 Gemini 完全成立
-  （弱档 mirror 0/4→3/4）、对 DeepSeek 只成立一半。
+  （弱档 mirror 0/4→3/4）、对 DeepSeek 只成立一半；更难的
+  算术检验已跑完（`oprea_hard_arithmetic.md`）：奖金 47 元
+  （EV 42.3/4.7），Gemini 767/767 恰为 EV（失低格 n=167，
+  33 次 429 限流失败未补跑），DeepSeek 符号仍 2/4、锚定更强
+  （失高格答 47 成众数 58%）；结论修正为模式出现的条件是
+  算术真的失败，不是算术变难。
 
 ### 7. 最低工资雇佣替代（规则设计）🔄 在跑
 

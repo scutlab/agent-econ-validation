@@ -64,7 +64,7 @@ tokens 计，约 0.2 美元。放大 10 倍也只有几美元。
 <!-- NIGHTLY_SYNC:BEGIN -->
 ## 同步状态（每晚 23 点自动更新）
 
-- 最后同步：2026-11-05 14:59（北京时间）
+- 最后同步：2026-11-06 22:59（北京时间）
 - 云盘：文档＋数据＋代码全量备份（Google Drive 文件夹 agent-econ-validation）
 - GitHub：仅文档＋代码（scutlab/agent-econ-validation），数据与实验结果不进仓库
 
@@ -80,10 +80,12 @@ tokens 计，约 0.2 美元。放大 10 倍也只有几美元。
 | results_gemini_h3_backup_sequential | 1 | 52 | status_quo_classic_sq70.jsonl(52) |
 | results_gemini_noanchor | 3 | 600 | — |
 | results_gemini_oprea_math | 16 | 3200 | — |
+| results_gemini_oprea_prize47 | 4 | 800 | — |
 | results_gemini_settle | 8 | 1600 | — |
 | results_gemini_volunteering | 8 | 1600 | — |
 | results_noanchor | 3 | 600 | — |
 | results_oprea_math | 16 | 3200 | — |
+| results_oprea_prize47 | 4 | 800 | — |
 | results_settle | 8 | 1600 | — |
 | results_volunteering | 8 | 1600 | — |
 <!-- NIGHTLY_SYNC:END -->

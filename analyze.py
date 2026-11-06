@@ -125,7 +125,8 @@ def summarize(path, rows=None):
                     if not sub:
                         continue
                     p = 0.9 if cell.endswith("high") else 0.1
-                    ev = 50 * p
+                    prize = sub[0].get("prize") or 50
+                    ev = prize * p
                     ces = [r["parsed"]["ce"] for r in sub]
                     if cell.startswith("gain"):
                         devs = [c - ev for c in ces]

@@ -122,6 +122,9 @@ def main():
     ap.add_argument("--math", default="none", choices=["none", "strong", "weak"],
                     help="math-ability persona clause appended to the "
                          "persona text (Oprea mirror test)")
+    ap.add_argument("--prize", type=int, default=50,
+                    help="prize amount in yuan for the Oprea experiment "
+                         "(default 50; 47 makes the EV non-integer)")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--workers", type=int, default=1,
                     help="concurrent API calls (default 1 = sequential). "
@@ -156,6 +159,8 @@ def main():
         suffix += f"_{args.close}_{args.basket}_{args.cfix}"
     if args.math != "none":
         suffix += f"_math{args.math}"
+    if args.experiment == "oprea" and args.prize != 50:
+        suffix += f"_prize{args.prize}"
     out_path = args.out or os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         args.results_dir, f"{args.experiment}{suffix}.jsonl")
@@ -172,6 +177,7 @@ def main():
         if args.experiment == "oprea":
             kw["cell"] = args.cell
             kw["condition"] = args.condition
+            kw["prize"] = args.prize
         if args.experiment == "hiring":
             kw["minwage"] = args.minwage
             kw["expask"] = int(args.expask)
@@ -223,6 +229,7 @@ def main():
             "basket": args.basket if args.experiment == "fixing" else None,
             "cfix": args.cfix if args.experiment == "fixing" else None,
             "math": args.math,
+            "prize": args.prize if args.experiment == "oprea" else None,
             "provider": args.provider,
             "model": args.model,
             "temperature": args.temperature,

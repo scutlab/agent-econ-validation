@@ -182,33 +182,33 @@ def status_quo_parse(text):
 
 
 def oprea_prompt(persona, variant="classic", cell="gain_high",
-                 condition="lottery"):
+                 condition="lottery", prize=50):
     p = 0.9 if cell.endswith("high") else 0.1
     n_win = int(100 * p)
     if cell.startswith("gain"):
         if condition == "mirror":
-            story = (f"你有 100 个盒子，其中 {n_win} 个装着 50 元，"
+            story = (f"你有 100 个盒子，其中 {n_win} 个装着 {prize} 元，"
                      f"其余 {100 - n_win} 个是空的（0 元）。"
                      "全部打开，你得到所有盒子金额的平均值。"
                      "这是一个确定的金额，没有任何随机性。"
                      "现在有人想用一个确定的金额换走这个平均收益："
                      "你最低愿意接受多少确定金额？")
         else:
-            story = (f"你有 100 个盒子，其中 {n_win} 个装着 50 元，"
+            story = (f"你有 100 个盒子，其中 {n_win} 个装着 {prize} 元，"
                      f"其余 {100 - n_win} 个是空的（0 元）。"
                      "随机打开一个盒子，你得到里面的金额。"
                      "现在有人想用一个确定的金额换走你开盒子的机会："
                      "你最低愿意接受多少确定金额？")
     else:
         if condition == "mirror":
-            story = (f"你有 100 张卡片，其中 {n_win} 张写着“扣 50 元”，"
+            story = (f"你有 100 张卡片，其中 {n_win} 张写着“扣 {prize} 元”，"
                      f"其余 {100 - n_win} 张写着“扣 0 元”。"
                      "全部打开，你实际承担所有卡片扣款的平均值。"
                      "这是一个确定的损失，没有任何随机性。"
                      "现在你可以用一个确定的损失代替这个平均扣款："
                      "你最多能接受的确定损失是多少？")
         else:
-            story = (f"你有 100 张卡片，其中 {n_win} 张写着“扣 50 元”，"
+            story = (f"你有 100 张卡片，其中 {n_win} 张写着“扣 {prize} 元”，"
                      f"其余 {100 - n_win} 张写着“扣 0 元”。"
                      "随机打开一张卡片，按卡片扣钱。"
                      "现在你可以用一个确定的损失代替这次开卡："
